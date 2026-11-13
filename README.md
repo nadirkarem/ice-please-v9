@@ -1,6 +1,6 @@
 # Ice Please, maquette du site (FR / EN / AR)
 
-Version 9 : la V8 avec un nouveau film sur l'accueil. Elle n'est pas encore en ligne ; la version 8 l'est : **https://nadirkarem.github.io/ice-please-v8/** (brouillon non indexé).
+Aperçu en ligne : **https://nadirkarem.github.io/ice-please-v9/** (version 9 : la V8 avec un nouveau film sur l'accueil, brouillon non indexé).
 
 Maquette de refonte du site d'Ice Please Morocco (FAAB & CO), glaçons premium et clear ice pour les professionnels de la boisson. Ce n'est pas le site officiel : les textes reprennent le site actuel, les visuels de synthèse (vidéo, sphère dans un verre de whisky) sont des illustrations, et la page est en `noindex`.
 
