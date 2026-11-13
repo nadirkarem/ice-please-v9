@@ -1249,6 +1249,19 @@ html.lenis, html.lenis body { height: auto; }
 .ip-range__window::-webkit-scrollbar { display: none; }
 .ip-range__track { display: flex; gap: clamp(14px, 2vw, 28px); width: max-content; padding-inline: max(var(--ip-gutter), calc((100vw - var(--ip-wrap)) / 2)); }
 .ip-range__foot { display: none; }
+/* V9: the strip is slid sideways; a word, a thin bar and two arrows say so */
+.ip-range.is-swipe .ip-range__foot { display: flex; align-items: center; gap: 18px; }
+.ip-range.is-swipe .ip-range__window { padding-bottom: 26px; }
+.ip-range__nav { display: flex; gap: 10px; margin-inline-start: auto; }
+.ip-range__btn { display: grid; place-items: center; width: 46px; height: 46px; padding: 0; border: 0; border-radius: 50%; background: var(--ip-ink); color: #fff; transition: opacity 0.25s, transform 0.3s var(--ip-spring); }
+.ip-range__btn .ip-icon { width: 18px; height: 18px; }
+.ip-range__btn--prev .ip-icon { rotate: 180deg; }
+.ip-range__btn:disabled { opacity: 0.28; }
+.ip-range__btn:not(:disabled):active { transform: scale(0.92); }
+/* the film whose clock is the scroll: a longer track, and no pause control */
+.ip-reveal.is-live.is-scrub { height: 640svh; }
+.ip-reveal.is-scrub .ip-reveal__toggle { display: none; }
+@media (max-width: 760px) { .ip-reveal.is-live.is-scrub { height: 560svh; } }
 
 .ip-piece { flex: none; width: min(84vw, 1060px); scroll-snap-align: center; }
 .ip-piece__card {

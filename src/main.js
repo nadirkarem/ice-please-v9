@@ -450,17 +450,41 @@ function initScenes() {
   const ease = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
   scenes.forEach((section) => {
     section.classList.add('is-live');
+    // V9: a film with data-scrub (its last second) does not play by itself: the scroll is its clock. The window opens over
+    // the first part of the track, then the page's position sets the film's time, forwards and backwards.
+    const video = section.querySelector('video[data-scrub]');
+    const end = video ? Number(video.dataset.scrub) : 0;
+    const OPEN = end ? 0.14 : 0.6;
+    const [brandFrom, brandTo] = (video?.dataset.brand || '').split(' ').map(Number);
+    let want = 0, primed = false;
+    const seek = () => { if (video.readyState >= 1 && !video.seeking && Math.abs(video.currentTime - want) > 0.015) video.currentTime = want; };
+    const prime = () => { // fetched when the film comes near; a short play then pause lets a phone show the frames it is asked for
+      if (primed || !end) return;
+      primed = true;
+      video.preload = 'auto';
+      video.load();
+      const started = video.play();
+      if (started) started.then(() => { video.pause(); seek(); }).catch(() => {});
+      video.addEventListener('seeked', seek);
+      video.addEventListener('loadedmetadata', seek);
+    };
+    if (end) section.classList.add('is-scrub');
     let current = -1, frame = 0, near = false;
     const progress = () => {
       const span = section.offsetHeight - window.innerHeight;
       return span > 0 ? clamp(-section.getBoundingClientRect().top / span) : 1;
     };
     const apply = (p) => {
-      const e = ease(clamp(p / 0.6));
+      const e = ease(clamp(p / OPEN));
+      if (end) {
+        want = clamp((p - OPEN * 0.7) / (0.95 - OPEN * 0.7)) * end;
+        if (primed) seek();
+        section.classList.toggle('is-brand', want >= brandFrom && want < brandTo);
+      }
       section.style.setProperty('--ip-e', e.toFixed(4));
       // once the film fills the screen, the bar and the phone's status bar take the shade of its concrete (see initTone)
       if (section.dataset.set) section.dataset.set = e > 0.5 ? 'film' : 'sun';
-      section.classList.toggle('is-open', p > (section.classList.contains('is-open') ? 0.58 : 0.66));
+      section.classList.toggle('is-open', p > OPEN * (section.classList.contains('is-open') ? 0.97 : 1.1));
     };
     const tick = () => {
       frame = 0;
@@ -471,7 +495,7 @@ function initScenes() {
       if (near && current !== target) frame = requestAnimationFrame(tick);
     };
     const kick = () => { if (near && !frame) frame = requestAnimationFrame(tick); };
-    const io = new IntersectionObserver(([e]) => { near = e.isIntersecting; if (near) { current = -1; kick(); } }, { rootMargin: '25% 0px 25% 0px' });
+    const io = new IntersectionObserver(([e]) => { near = e.isIntersecting; if (near) { prime(); current = -1; kick(); } }, { rootMargin: '60% 0px 25% 0px' });
     io.observe(section);
     onScrollOf(kick);
     window.addEventListener('resize', kick);
@@ -485,60 +509,36 @@ function initScenes() {
    last card be read before anything moves. Chased frame by frame like the films, so a wheel that moves in steps still
    glides. Under reduced motion nothing is set up: the strip scrolls sideways under the finger. */
 function initRange() {
-  const sections = document.querySelectorAll('[data-ip-hscroll]');
-  if (!sections.length || reduced()) return;
-  const clamp = (v) => Math.min(Math.max(v, 0), 1);
-  const REST = 0.1; // share of the run spent still, at each end
-  sections.forEach((section) => {
+  // V9: the strip is slid sideways, by the finger, the trackpad or its two arrows; the page no longer pins it
+  document.querySelectorAll('[data-ip-hscroll]').forEach((section) => {
     const win = section.querySelector('[data-ip-window]');
-    const strip = section.querySelector('[data-ip-track]');
-    if (!win || !strip) return;
+    const prev = section.querySelector('[data-ip-prev]');
+    const next = section.querySelector('[data-ip-next]');
+    if (!win || !prev || !next) return;
     const rtl = getComputedStyle(section).direction === 'rtl';
-    let dist = 0, current = -1, frame = 0, near = false;
-    section.classList.add('is-live');
-    const measure = () => {
-      dist = Math.max(0, strip.scrollWidth - win.clientWidth);
-      // vertical distance: a bit more than the sideways one, plus the rests
-      section.style.setProperty('--ip-run', `${Math.round((dist * 1.25) / (1 - 2 * REST))}px`);
-    };
-    const progress = () => {
-      const span = section.offsetHeight - window.innerHeight;
-      const p = span > 0 ? clamp(-section.getBoundingClientRect().top / span) : 0;
-      return clamp((p - REST) / (1 - 2 * REST));
-    };
-    const apply = (q) => {
-      section.style.setProperty('--x', `${((rtl ? 1 : -1) * q * dist).toFixed(1)}px`);
-      section.style.setProperty('--q', q.toFixed(4));
-    };
-    const tick = () => {
+    section.classList.add('is-swipe');
+    let frame = 0;
+    const update = () => {
       frame = 0;
-      const target = progress();
-      current = current < 0 ? target : current + (target - current) * 0.2;
-      if (Math.abs(target - current) < 0.0005) current = target;
-      apply(current);
-      if (near && current !== target) frame = requestAnimationFrame(tick);
+      const max = win.scrollWidth - win.clientWidth;
+      const q = max > 0 ? Math.min(Math.abs(win.scrollLeft) / max, 1) : 0;
+      section.style.setProperty('--q', q.toFixed(4));
+      prev.disabled = q < 0.01;
+      next.disabled = q > 0.99 || max <= 0;
     };
-    const kick = () => { if (near && !frame) frame = requestAnimationFrame(tick); };
-    const onResize = () => { measure(); current = -1; kick(); };
-    const io = new IntersectionObserver(([e]) => { near = e.isIntersecting; if (near) { current = -1; kick(); } }, { rootMargin: '25% 0px 25% 0px' });
-    const ro = new ResizeObserver(onResize);
-    // a card reached with the keyboard: bring the page to where that card is in view
-    const onFocus = (e) => {
-      const card = e.target.closest('.ip-piece');
-      if (!card) return;
-      const cards = [...strip.children];
-      const q = cards.length > 1 ? cards.indexOf(card) / (cards.length - 1) : 0;
-      const span = section.offsetHeight - window.innerHeight;
-      const top = section.getBoundingClientRect().top + scrollTop() + (REST + q * (1 - 2 * REST)) * span;
-      if (window.__ipLenis) window.__ipLenis.scrollTo(top, { immediate: true, force: true }); else window.scrollTo({ top, behavior: 'instant' });
+    const onScroll = () => { frame = frame || requestAnimationFrame(update); };
+    const step = (way) => () => {
+      const card = win.querySelector('.ip-piece');
+      const by = card ? card.getBoundingClientRect().width + 24 : win.clientWidth * 0.8;
+      win.scrollBy({ left: way * (rtl ? -1 : 1) * by, behavior: reduced() ? 'auto' : 'smooth' });
     };
-    measure();
-    io.observe(section);
-    ro.observe(win);
-    onScrollOf(kick);
-    strip.addEventListener('focusin', onFocus);
-    apply(progress());
-    track(() => { io.disconnect(); ro.disconnect(); offScrollOf(kick); strip.removeEventListener('focusin', onFocus); cancelAnimationFrame(frame); });
+    const back = step(-1), on = step(1);
+    win.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll);
+    prev.addEventListener('click', back);
+    next.addEventListener('click', on);
+    update();
+    track(() => { win.removeEventListener('scroll', onScroll); window.removeEventListener('resize', onScroll); prev.removeEventListener('click', back); next.removeEventListener('click', on); cancelAnimationFrame(frame); });
   });
 }
 
@@ -605,6 +605,7 @@ function initVideo() {
       tall.addEventListener('change', cut);
       track(() => tall.removeEventListener('change', cut));
     }
+    if (wrap.classList.contains('is-scrub')) return; // the scroll drives this film (initScenes): no clock, no pause control
     if (brand) {
       const [from, to] = brand.split(' ').map(Number);
       const onTime = () => wrap.classList.toggle('is-brand', video.currentTime >= from && video.currentTime < to);

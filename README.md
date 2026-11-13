@@ -13,7 +13,9 @@ La V8, avec un nouveau film sur l'accueil (« Manipulé avec précision. Servi a
 - **Le film** (15 s, en boucle, sans son) : une sphère posée à la pince dans un verre de whisky, des roses de plusieurs couleurs prises dans des cubes, puis le cube gravé du logo tenu au gant noir. Il se termine par un travelling sur la gravure, qui se fond dans le logo sur fond noir, exactement à la même place, avant de revenir au premier plan.
 - **Deux cadrages** : paysage pour les écrans larges, vertical pour un téléphone tenu droit (recadré plan par plan sur le sujet, avec un panoramique sur les roses). Le site choisit, et change si l'on tourne le téléphone.
 - **Autour du film** : le titre tient en deux phrases, une par ligne ; les voiles sombres ne couvrent plus que le texte, pour garder la lumière de l'image ; le titre s'efface pendant le dernier plan et le logo, puis revient ; le bouton de pause est un petit rond discret ; le bouton WhatsApp s'efface pendant le film ; la barre du téléphone prend la teinte du béton du film.
-- Le film ne se charge que lorsqu'il arrive à l'écran.
+- **Le défilement est l'horloge du film** : il avance et recule avec la page, sans jouer tout seul (sauf mouvement réduit : bouton de lecture). Il ne se charge que lorsqu'il approche de l'écran.
+- **« Nos glaçons » se fait glisser vers la droite** (doigt, pavé tactile ou deux flèches) ; la page ne s'arrête plus dessus.
+- « Pour le service » s'appelle « Le reste de la gamme ».
 - Le montage est documenté dans `tools/film/` (dossier local, non publié).
 
 ## Version 8

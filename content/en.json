@@ -438,7 +438,10 @@
       "redirect": "This page has moved.",
       "follow": "Continue",
       "rangeCount": "{n} of {total}",
-      "service": "For service",
+      "service": "The rest of the range",
+      "swipe": "Swipe",
+      "rangePrev": "Previous ice",
+      "rangeNext": "Next ice",
       "keepScrolling": "Keep scrolling"
     }
   }

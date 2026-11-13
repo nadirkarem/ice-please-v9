@@ -438,7 +438,10 @@
       "redirect": "تغيّر عنوان هذه الصفحة.",
       "follow": "متابعة",
       "rangeCount": "{n} من {total}",
-      "service": "للخدمة",
+      "service": "باقي المجموعة",
+      "swipe": "اسحبوا",
+      "rangePrev": "السابق",
+      "rangeNext": "التالي",
       "keepScrolling": "تابعوا التمرير"
     }
   }

@@ -133,7 +133,7 @@ function saga(ctx, { id, title, text, name, label }) {
  * poster of its own: the still underneath, a picture with both framings, shows through until the film plays. `brand` gives, in seconds, the moment the
  * film closes on the logo over black: the words laid over the picture step aside for it (see initVideo).
  */
-function reveal(ctx, { id, title, text, link, name, upright = false, brand = null, label, long = false }) {
+function reveal(ctx, { id, title, text, link, name, upright = false, brand = null, scrub = 0, label, long = false }) {
   const { c } = ctx;
   const tall = '(max-aspect-ratio: 4/5)';
   const lines = title.split(/(?<=[.!?])\s+/).map((line) => `<span class="ip-reveal__line">${esc(line)}</span>`).join(' '); // one sentence a line
@@ -143,7 +143,7 @@ function reveal(ctx, { id, title, text, link, name, upright = false, brand = nul
         <p class="ip-reveal__title ip-reveal__title--page" aria-hidden="true">${lines}</p>
         <div class="ip-reveal__media">
           ${upright ? `<picture><source media="${tall}" srcset="/media/${name}-portrait-poster.jpg" width="540" height="1080">${poster}</picture>` : poster}
-          <video muted loop playsinline preload="none"${upright ? '' : ` poster="/media/${name}-poster.jpg"`} aria-label="${esc(label)}"${upright ? ` data-upright="-portrait" data-upright-when="${tall}"` : ''}${brand ? ` data-brand="${brand.join(' ')}"` : ''}>
+          <video muted loop playsinline preload="none"${upright ? '' : ` poster="/media/${name}-poster.jpg"`} aria-label="${esc(label)}"${upright ? ` data-upright="-portrait" data-upright-when="${tall}"` : ''}${brand ? ` data-brand="${brand.join(' ')}"` : ''}${scrub ? ` data-scrub="${scrub}"` : ''}>
             <source src="/media/${name}.mp4" type="video/mp4">
             <source src="/media/${name}.webm" type="video/webm">
           </video>
@@ -298,9 +298,13 @@ function range(ctx) {
         <div class="ip-range__window" data-ip-window>
           <ul class="ip-range__track" data-ip-track>${PIECES.map((id) => piece(ctx, id)).join('')}</ul>
         </div>
-        <div class="ip-wrap ip-range__foot" aria-hidden="true">
-          <p class="ip-range__cue"><span>${esc(c.v8.ui.keepScrolling)}</span><span class="ip-range__arrow">${icon('arrow')}</span></p>
-          <span class="ip-range__bar"><i></i></span>
+        <div class="ip-wrap ip-range__foot">
+          <p class="ip-range__cue" aria-hidden="true">${esc(c.v8.ui.swipe)}</p>
+          <span class="ip-range__bar" aria-hidden="true"><i></i></span>
+          <div class="ip-range__nav">
+            <button class="ip-range__btn ip-range__btn--prev" type="button" data-ip-prev aria-label="${esc(c.v8.ui.rangePrev)}" disabled>${icon('arrow')}</button>
+            <button class="ip-range__btn" type="button" data-ip-next aria-label="${esc(c.v8.ui.rangeNext)}">${icon('arrow')}</button>
+          </div>
         </div>
       </div>
     </section>`;
@@ -386,7 +390,7 @@ export function home(ctx) {
       <div class="ip-wrap"><p class="ip-intro__text" data-reveal>${md(ctx, h.intro)}</p></div>
     </section>
 
-    ${reveal(ctx, { id: 'h-craft', title: v.lines.craft, text: h.savoir.text, link: h.savoir.link, name: 'ice-film', upright: true, brand: [9.7, 14.7], label: c.ui.videoLabel, long: true })}
+    ${reveal(ctx, { id: 'h-craft', title: v.lines.craft, text: h.savoir.text, link: h.savoir.link, name: 'ice-film', upright: true, brand: [9.7, 14.7], scrub: 14.3, label: c.ui.videoLabel, long: true })}
 
     ${range(ctx)}
 

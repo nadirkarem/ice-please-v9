@@ -438,7 +438,10 @@
       "redirect": "Cette page a changé d’adresse.",
       "follow": "Continuer",
       "rangeCount": "{n} sur {total}",
-      "service": "Pour le service",
+      "service": "Le reste de la gamme",
+      "swipe": "Faites glisser",
+      "rangePrev": "Glaçons précédents",
+      "rangeNext": "Glaçons suivants",
       "keepScrolling": "Continuez de défiler"
     }
   }
